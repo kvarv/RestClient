@@ -17,8 +17,6 @@ namespace Rest
         [JsonProperty]
         public string ExceptionType { get; set; }
 
-        public HttpStatusCode HttpStatusCode { get; set; }
-
         [DataMember]
         [JsonProperty]
         public string Message { get; set; }

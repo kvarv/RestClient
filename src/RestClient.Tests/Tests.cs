@@ -47,7 +47,7 @@ namespace Rest.Tests
                 var restClient = new RestClient(server.HttpClient);
                 restClient.HttpClient.DefaultRequestHeaders.Add("Accept", "application/json");
                 const string ErrorMessage = "error";
-                
+
                 var aggregateException = Assert.Throws<AggregateException>(() => restClient.GetAsync<object>("/api/error/" + ErrorMessage).Result);
 
                 aggregateException.InnerException.ShouldBeType<ApiException>();
@@ -85,7 +85,7 @@ namespace Rest.Tests
 
                 aggregateException.InnerException.ShouldBeType<ApiException>();
                 var apiException = (ApiException)aggregateException.InnerException;
-                apiException.ApiError.HttpStatusCode.ShouldEqual(HttpStatusCode.NotFound);
+                apiException.HttpStatusCode.ShouldEqual(HttpStatusCode.NotFound);
             }
         }
 
@@ -101,7 +101,7 @@ namespace Rest.Tests
 
                 aggregateException.InnerException.ShouldBeType<ApiException>();
                 var apiException = (ApiException)aggregateException.InnerException;
-                apiException.ApiError.HttpStatusCode.ShouldEqual(HttpStatusCode.NotFound);
+                apiException.HttpStatusCode.ShouldEqual(HttpStatusCode.NotFound);
             }
         }
 
@@ -121,7 +121,7 @@ namespace Rest.Tests
 
                 aggregateException.InnerException.ShouldBeType<ApiException>();
                 var apiException = (ApiException)aggregateException.InnerException;
-                apiException.ApiError.HttpStatusCode.ShouldEqual(HttpStatusCode.NotAcceptable);
+                apiException.HttpStatusCode.ShouldEqual(HttpStatusCode.NotAcceptable);
             }
         }
 
@@ -141,6 +141,59 @@ namespace Rest.Tests
                 });
 
                 aggregateException.InnerException.ShouldBeType<NotSupportedException>();
+            }
+        }
+
+        [Fact]
+        public async Task Should_get_with_parameters()
+        {
+            using (var server = TestServer.Create<Startup>())
+            {
+                var restClient = new RestClient(server.HttpClient);
+
+                var parameters = new Dictionary<string, string> { { "param1", "value1" }, { "param2", "value2" } };
+                var foo = await restClient.GetAsync<Foo>("/api/foos", parameters);
+
+                foo.ShouldNotBeNull();
+            }
+        }
+
+        [Fact]
+        public async Task Should_get_with_id()
+        {
+            using (var server = TestServer.Create<Startup>())
+            {
+                var restClient = new RestClient(server.HttpClient);
+
+                var foo = await restClient.GetAsync<Foo>("/api/foos/{0}".FormatUri(1));
+
+                foo.ShouldNotBeNull();
+            }
+        }
+
+        [Fact]
+        public async Task Should_post_json()
+        {
+            using (var server = TestServer.Create<Startup>())
+            {
+                var restClient = new RestClient(server.HttpClient);
+
+                var id = await restClient.PostAsync<int>("/api/foos", new Foo(), "application/json");
+
+                id.ShouldEqual(1);
+            }
+        }
+
+        [Fact]
+        public async Task Should_post_xml()
+        {
+            using (var server = TestServer.Create<Startup>())
+            {
+                var restClient = new RestClient(server.HttpClient);
+
+                var id = await restClient.PostAsync<int>("/api/foos", new Foo(), "application/xml");
+
+                id.ShouldEqual(1);
             }
         }
     }

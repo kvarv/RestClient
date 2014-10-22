@@ -23,5 +23,13 @@ namespace Rest
             var deserializer = new DataContractSerializer(typeof(T));
             return (T)deserializer.ReadObject(stream);
         }
+
+        public object Serialize(object body)
+        {
+            var serializer = new DataContractSerializer(body.GetType());
+            var memoryStream = new MemoryStream();
+            serializer.WriteObject(memoryStream, body);
+            return memoryStream;
+        }
     }
 }

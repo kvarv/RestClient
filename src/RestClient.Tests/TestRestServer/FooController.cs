@@ -20,6 +20,18 @@ namespace Rest.Tests.TestRestServer
             return Request.CreateResponse(HttpStatusCode.OK, new List<Foo> { CreateFoo(), CreateFoo(), CreateFoo() });
         }
 
+        [Route("")]
+        public HttpResponseMessage Get(string param1, string param2)
+        {
+            return Request.CreateResponse(HttpStatusCode.OK, CreateFoo());
+        }
+
+        [Route("")]
+        public HttpResponseMessage Post(Foo foo)
+        {
+            return Request.CreateResponse(HttpStatusCode.Created, 1);
+        }
+
         private static Foo CreateFoo()
         {
             return new Foo

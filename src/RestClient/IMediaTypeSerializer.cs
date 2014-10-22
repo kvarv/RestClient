@@ -7,5 +7,6 @@ namespace Rest
     {
         T Deserialize<T>(Stream stream);
         IEnumerable<string> SupportedMedaTypes { get; }
+        object Serialize(object body);
     }
 }

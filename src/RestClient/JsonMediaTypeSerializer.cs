@@ -7,7 +7,7 @@ namespace Rest
     public class JsonMediaTypeSerializer : IMediaTypeSerializer
     {
         private readonly List<string> _supportedMedaTypes;
-        private JsonSerializer _jsonSerializer;
+        private readonly JsonSerializer _jsonSerializer;
 
         public JsonMediaTypeSerializer()
         {
@@ -25,9 +25,13 @@ namespace Rest
             using (var streamReader = new StreamReader(stream))
             using (var jsonTextReader = new JsonTextReader(streamReader))
             {
-                _jsonSerializer = new JsonSerializer();
                 return _jsonSerializer.Deserialize<T>(jsonTextReader);
             }
+        }
+
+        public object Serialize(object body)
+        {
+            return JsonConvert.SerializeObject(body);
         }
     }
 }
