@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
 VisualStudioVersion = 12.0.21005.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RestClient", "RestClient.csproj", "{38242CC1-AF1A-4144-B245-EE5DE8EE88FD}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RestClient", "RestClient\RestClient.csproj", "{38242CC1-AF1A-4144-B245-EE5DE8EE88FD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RestClient.Tests", "..\RestClient.Tests\RestClient.Tests.csproj", "{1516ADBF-1788-4342-8EF9-93A2B0EE3774}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RestClient.Tests", "RestClient.Tests\RestClient.Tests.csproj", "{1516ADBF-1788-4342-8EF9-93A2B0EE3774}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
