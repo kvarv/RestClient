@@ -33,7 +33,31 @@ namespace Rest.Tests.TestRestServer
         }
 
         [Route("")]
-        public HttpResponseMessage Put(Foo foo)
+        public HttpResponseMessage Post(string param1, string param2, Foo foo)
+        {
+            return Request.CreateResponse(HttpStatusCode.Created, 1);
+        }
+
+        [Route("{id}")]
+        public HttpResponseMessage Put(int id, Foo foo)
+        {
+            return Request.CreateResponse(HttpStatusCode.OK);
+        }
+
+        [Route("")]
+        public HttpResponseMessage Put(string param1, string param2, Foo foo)
+        {
+            return Request.CreateResponse(HttpStatusCode.OK);
+        }
+
+        [Route("{id}")]
+        public HttpResponseMessage Delete(int id)
+        {
+            return Request.CreateResponse(HttpStatusCode.OK);
+        }
+
+        [Route("")]
+        public HttpResponseMessage Delete(string param1, string param2)
         {
             return Request.CreateResponse(HttpStatusCode.OK);
         }

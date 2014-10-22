@@ -130,15 +130,23 @@ namespace Rest
             return serializer;
         }
 
-        public Task<T> PostAsync<T>(string requestUri, object body, string contentType)
+        public Task<T> PostAsync<T>(string requestUri, object body, string contentType, IDictionary<string, string> parameters = null)
         {
-            return SendAsync<T>(new Uri(requestUri, UriKind.Relative), HttpMethod.Post, body, contentType);
+            var uri = new Uri(requestUri, UriKind.Relative).ApplyParameters(parameters);
+            return SendAsync<T>(uri, HttpMethod.Post, body, contentType);
         }
 
-        public Task<T> PutAsync<T>(string requestUri, object body, string contentType)
+        public Task<T> PutAsync<T>(string requestUri, object body, string contentType, IDictionary<string, string> parameters = null)
         {
-            var response = SendAsync<T>(new Uri(requestUri, UriKind.Relative), HttpMethod.Put, body, contentType);
+            var uri = new Uri(requestUri, UriKind.Relative).ApplyParameters(parameters);
+            var response = SendAsync<T>(uri, HttpMethod.Put, body, contentType);
             return response;
+        }
+
+        public Task DeleteAsync(string requestUri, IDictionary<string, string> parameters = null)
+        {
+            var uri = new Uri(requestUri, UriKind.Relative).ApplyParameters(parameters);
+            return SendAsync<object>(uri, HttpMethod.Delete, null, null);
         }
     }
 }

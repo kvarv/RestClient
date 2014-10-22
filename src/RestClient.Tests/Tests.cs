@@ -214,6 +214,21 @@ namespace Rest.Tests
             }
         }
 
+        [Fact]
+        public async Task Should_post_json_with_parameters()
+        {
+            using (var server = TestServer.Create<Startup>())
+            {
+                var restClient = new RestClient(server.HttpClient);
+                var parameters = new Dictionary<string, string> { { "param1", "value1" }, { "param2", "value2" } };
+
+                var id = await restClient.PostAsync<int>("/api/foos", new Foo(), MediaTypes.ApplicationJson, parameters);
+
+                id.ShouldEqual(1);
+
+            }
+        }
+
 
         [Fact]
         public async Task Should_put_json()
@@ -222,8 +237,22 @@ namespace Rest.Tests
             {
                 var restClient = new RestClient(server.HttpClient);
 
-                var obj = await restClient.PutAsync<object>("/api/foos", new Foo(), MediaTypes.ApplicationJson);
+                var obj = await restClient.PutAsync<object>("/api/foos/{0}".FormatUri(1), new Foo(), MediaTypes.ApplicationJson);
                 
+                obj.ShouldBeNull();
+            }
+        }
+
+        [Fact]
+        public async Task Should_put_json_with_parameters()
+        {
+            using (var server = TestServer.Create<Startup>())
+            {
+                var restClient = new RestClient(server.HttpClient);
+                var parameters = new Dictionary<string, string> { { "param1", "value1" }, { "param2", "value2" } };
+
+                var obj = await restClient.PutAsync<object>("/api/foos", new Foo(), MediaTypes.ApplicationJson, parameters);
+
                 obj.ShouldBeNull();
             }
         }
@@ -235,7 +264,7 @@ namespace Rest.Tests
             {
                 var restClient = new RestClient(server.HttpClient);
 
-                var obj = await restClient.PutAsync<object>("/api/foos", new Foo(), MediaTypes.ApplicationXml);
+                var obj = await restClient.PutAsync<object>("/api/foos/{0}".FormatUri(1), new Foo(), MediaTypes.ApplicationXml);
                 
                 obj.ShouldBeNull();
             }
@@ -250,9 +279,32 @@ namespace Rest.Tests
                 var values = new List<KeyValuePair<string, string>> { };
                 var content = new FormUrlEncodedContent(values);
 
-                var obj = await restClient.PutAsync<object>("/api/foos", content, MediaTypes.FormUrlEncoded);
+                var obj = await restClient.PutAsync<object>("/api/foos/{0}".FormatUri(1), content, MediaTypes.FormUrlEncoded);
 
                 obj.ShouldBeNull();
+            }
+        }
+
+        [Fact]
+        public async Task Should_delete_with_id()
+        {
+            using (var server = TestServer.Create<Startup>())
+            {
+                var restClient = new RestClient(server.HttpClient);
+
+                await restClient.DeleteAsync("/api/foos/{0}".FormatUri(1));
+            }
+        }
+
+        [Fact]
+        public async Task Should_delete_with_parameters()
+        {
+            using (var server = TestServer.Create<Startup>())
+            {
+                var restClient = new RestClient(server.HttpClient);
+                var parameters = new Dictionary<string, string> { { "param1", "value1" }, { "param2", "value2" } };
+
+                await restClient.DeleteAsync("/api/foos", parameters);
             }
         }
     }
