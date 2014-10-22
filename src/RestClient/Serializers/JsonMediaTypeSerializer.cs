@@ -2,7 +2,7 @@
 using System.IO;
 using Newtonsoft.Json;
 
-namespace Rest
+namespace Rest.Serializers
 {
     public class JsonMediaTypeSerializer : IMediaTypeSerializer
     {

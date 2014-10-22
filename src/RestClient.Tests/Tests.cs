@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.Owin.Testing;
+using Rest.Serializers;
 using Rest.Tests.TestRestServer;
 using Should;
 using Xunit;
@@ -31,7 +33,7 @@ namespace Rest.Tests
             using (var server = TestServer.Create<Startup>())
             {
                 var restClient = new RestClient(server.HttpClient);
-                restClient.HttpClient.DefaultRequestHeaders.Add("Accept", "application/xml");
+                restClient.HttpClient.DefaultRequestHeaders.Add("Accept", MediaTypes.ApplicationXml);
 
                 var foos = await restClient.GetAsync<List<Foo>>("/api/foos");
 
@@ -45,7 +47,7 @@ namespace Rest.Tests
             using (var server = TestServer.Create<Startup>())
             {
                 var restClient = new RestClient(server.HttpClient);
-                restClient.HttpClient.DefaultRequestHeaders.Add("Accept", "application/json");
+                restClient.HttpClient.DefaultRequestHeaders.Add("Accept", MediaTypes.ApplicationXml);
                 const string ErrorMessage = "error";
 
                 var aggregateException = Assert.Throws<AggregateException>(() => restClient.GetAsync<object>("/api/error/" + ErrorMessage).Result);
@@ -62,7 +64,7 @@ namespace Rest.Tests
             using (var server = TestServer.Create<Startup>())
             {
                 var restClient = new RestClient(server.HttpClient);
-                restClient.HttpClient.DefaultRequestHeaders.Add("Accept", "application/xml");
+                restClient.HttpClient.DefaultRequestHeaders.Add("Accept", MediaTypes.ApplicationXml);
                 const string ErrorMessage = "error";
 
                 var aggregateException = Assert.Throws<AggregateException>(() => restClient.GetAsync<object>("/api/error/" + ErrorMessage).Result);
@@ -79,7 +81,7 @@ namespace Rest.Tests
             using (var server = TestServer.Create<Startup>())
             {
                 var restClient = new RestClient(server.HttpClient);
-                restClient.HttpClient.DefaultRequestHeaders.Add("Accept", "application/json");
+                restClient.HttpClient.DefaultRequestHeaders.Add("Accept", MediaTypes.ApplicationJson);
 
                 var aggregateException = Assert.Throws<AggregateException>(() => restClient.GetAsync<object>("/api/unknown").Result);
 
@@ -95,7 +97,7 @@ namespace Rest.Tests
             using (var server = TestServer.Create<Startup>())
             {
                 var restClient = new RestClient(server.HttpClient);
-                restClient.HttpClient.DefaultRequestHeaders.Add("Accept", "application/xml");
+                restClient.HttpClient.DefaultRequestHeaders.Add("Accept", MediaTypes.ApplicationXml);
 
                 var aggregateException = Assert.Throws<AggregateException>(() => restClient.GetAsync<object>("/api/unknown").Result);
 
@@ -131,7 +133,7 @@ namespace Rest.Tests
             using (var server = TestServer.Create<Startup>())
             {
                 var restClient = new RestClient(server.HttpClient);
-                restClient.HttpClient.DefaultRequestHeaders.Add("Accept", "application/json");
+                restClient.HttpClient.DefaultRequestHeaders.Add("Accept", MediaTypes.ApplicationJson);
                 restClient.MediaTypeSerializers.Remove(restClient.MediaTypeSerializers.First(x => x is JsonMediaTypeSerializer));
 
                 var aggregateException = Assert.Throws<AggregateException>(() =>
@@ -178,7 +180,7 @@ namespace Rest.Tests
             {
                 var restClient = new RestClient(server.HttpClient);
 
-                var id = await restClient.PostAsync<int>("/api/foos", new Foo(), "application/json");
+                var id = await restClient.PostAsync<int>("/api/foos", new Foo(), MediaTypes.ApplicationJson);
 
                 id.ShouldEqual(1);
             }
@@ -191,12 +193,25 @@ namespace Rest.Tests
             {
                 var restClient = new RestClient(server.HttpClient);
 
-                var id = await restClient.PostAsync<int>("/api/foos", new Foo(), "application/xml");
+                var id = await restClient.PostAsync<int>("/api/foos", new Foo(), MediaTypes.ApplicationXml);
+
+                id.ShouldEqual(1);
+            }
+        }
+
+        [Fact]
+        public async Task Should_post_form_url_encoded_content()
+        {
+            using (var server = TestServer.Create<Startup>())
+            {
+                var restClient = new RestClient(server.HttpClient);
+                var values = new List<KeyValuePair<string, string>>{};
+                var content = new FormUrlEncodedContent(values);
+
+                var id = await restClient.PostAsync<int>("/api/foos", content, MediaTypes.FormUrlEncoded);
 
                 id.ShouldEqual(1);
             }
         }
     }
-
-
 }
