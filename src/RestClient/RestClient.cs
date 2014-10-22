@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
@@ -58,26 +57,29 @@ namespace Rest
 
             var response = await _httpClient.SendAsync(request).ConfigureAwait(false);
 
-            using (var httpContent = response.Content)
+            if (response.Content != null)
             {
-                if (response.IsSuccessStatusCode && response.StatusCode != HttpStatusCode.NoContent)
+                using (var httpContent = response.Content)
                 {
-                    var contentAsStream = await httpContent.ReadAsStreamAsync().ConfigureAwait(false);
-                    var serializer = GetSerializerMatchingContentType(httpContent.Headers.ContentType.MediaType);
-                    return serializer.Deserialize<T>(contentAsStream);
-                }
+                    if (response.IsSuccessStatusCode && httpContent.Headers.ContentType != null)
+                    {
+                        var contentAsStream = await httpContent.ReadAsStreamAsync().ConfigureAwait(false);
+                        var serializer = GetSerializerMatchingContentType(httpContent.Headers.ContentType.MediaType);
+                        return serializer.Deserialize<T>(contentAsStream);
+                    }
 
-                if (!response.IsSuccessStatusCode && HasStatusCodeWithoutResponse(response))
-                {
-                    var contentAsStream = await httpContent.ReadAsStreamAsync().ConfigureAwait(false);
-                    var serializer = GetSerializerMatchingContentType(httpContent.Headers.ContentType.MediaType);
-                    var apiError = serializer.Deserialize<ApiError>(contentAsStream);
-                    throw new ApiException(apiError) {HttpStatusCode = response.StatusCode, ReasonPhrase = response.ReasonPhrase};
-                }
+                    if (!response.IsSuccessStatusCode && httpContent.Headers.ContentType != null)
+                    {
+                        var contentAsStream = await httpContent.ReadAsStreamAsync().ConfigureAwait(false);
+                        var serializer = GetSerializerMatchingContentType(httpContent.Headers.ContentType.MediaType);
+                        var apiError = serializer.Deserialize<ApiError>(contentAsStream);
+                        throw new ApiException(apiError) {HttpStatusCode = response.StatusCode, ReasonPhrase = response.ReasonPhrase};
+                    }
 
-                if (!response.IsSuccessStatusCode)
-                {
-                    throw new ApiException(new ApiError {Message = response.ReasonPhrase}) {HttpStatusCode = response.StatusCode, ReasonPhrase = response.ReasonPhrase};
+                    if (!response.IsSuccessStatusCode)
+                    {
+                        throw new ApiException(new ApiError {Message = response.ReasonPhrase}) {HttpStatusCode = response.StatusCode, ReasonPhrase = response.ReasonPhrase};
+                    }
                 }
             }
 
@@ -118,11 +120,6 @@ namespace Rest
             return request;
         }
 
-        private static bool HasStatusCodeWithoutResponse(HttpResponseMessage response)
-        {
-            return response.StatusCode != HttpStatusCode.NotFound && response.StatusCode != HttpStatusCode.NotAcceptable;
-        }
-
         private IMediaTypeSerializer GetSerializerMatchingContentType(string mediaType)
         {
             var serializer = _mediaTypeSerializers.FirstOrDefault(mediaTypeSerializer => mediaTypeSerializer.SupportedMedaTypes.Any(mediatType => mediatType == mediaType));
@@ -136,6 +133,12 @@ namespace Rest
         public Task<T> PostAsync<T>(string requestUri, object body, string contentType)
         {
             return SendAsync<T>(new Uri(requestUri, UriKind.Relative), HttpMethod.Post, body, contentType);
+        }
+
+        public Task<T> PutAsync<T>(string requestUri, object body, string contentType)
+        {
+            var response = SendAsync<T>(new Uri(requestUri, UriKind.Relative), HttpMethod.Put, body, contentType);
+            return response;
         }
     }
 }

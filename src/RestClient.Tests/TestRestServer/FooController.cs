@@ -32,6 +32,12 @@ namespace Rest.Tests.TestRestServer
             return Request.CreateResponse(HttpStatusCode.Created, 1);
         }
 
+        [Route("")]
+        public HttpResponseMessage Put(Foo foo)
+        {
+            return Request.CreateResponse(HttpStatusCode.OK);
+        }
+
         private static Foo CreateFoo()
         {
             return new Foo

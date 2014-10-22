@@ -213,5 +213,47 @@ namespace Rest.Tests
                 id.ShouldEqual(1);
             }
         }
+
+
+        [Fact]
+        public async Task Should_put_json()
+        {
+            using (var server = TestServer.Create<Startup>())
+            {
+                var restClient = new RestClient(server.HttpClient);
+
+                var obj = await restClient.PutAsync<object>("/api/foos", new Foo(), MediaTypes.ApplicationJson);
+                
+                obj.ShouldBeNull();
+            }
+        }
+
+        [Fact]
+        public async Task Should_put_xml()
+        {
+            using (var server = TestServer.Create<Startup>())
+            {
+                var restClient = new RestClient(server.HttpClient);
+
+                var obj = await restClient.PutAsync<object>("/api/foos", new Foo(), MediaTypes.ApplicationXml);
+                
+                obj.ShouldBeNull();
+            }
+        }
+
+        [Fact]
+        public async Task Should_put_form_url_encoded_content()
+        {
+            using (var server = TestServer.Create<Startup>())
+            {
+                var restClient = new RestClient(server.HttpClient);
+                var values = new List<KeyValuePair<string, string>> { };
+                var content = new FormUrlEncodedContent(values);
+
+                var obj = await restClient.PutAsync<object>("/api/foos", content, MediaTypes.FormUrlEncoded);
+
+                obj.ShouldBeNull();
+            }
+        }
     }
 }
