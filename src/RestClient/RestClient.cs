@@ -60,9 +60,9 @@ namespace Rest
                     }
                     return serializer.Deserialize<T>(contentAsStream);
                 }
+
                 if (!response.IsSuccessStatusCode && response.StatusCode != HttpStatusCode.NotFound)
                 {
-                    var contentAsString = await httpContent.ReadAsStringAsync().ConfigureAwait(false);
                     var contentAsStream = await httpContent.ReadAsStreamAsync().ConfigureAwait(false);
                     var serializer = GetSerializerMatchingContentType(httpContent);
                     if (serializer == null)
