@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization;
 
@@ -7,7 +8,8 @@ namespace Rest
     public class XmlMediaTypeSerializer : IMediaTypeSerializer
     {
         private readonly List<string> _supportedMedaTypes;
-
+        //concurrency issues??
+        private readonly Dictionary<Type, DataContractSerializer> _cache = new Dictionary<Type, DataContractSerializer>(); 
         public XmlMediaTypeSerializer()
         {
             _supportedMedaTypes = new List<string> { "application/xml", "text/xml" };
@@ -20,8 +22,18 @@ namespace Rest
 
         public T Deserialize<T>(Stream stream)
         {
-            var deserializer = new DataContractSerializer(typeof(T));
-            return (T)deserializer.ReadObject(stream);
+            var type = typeof(T);
+            DataContractSerializer serializer;
+            if (_cache.ContainsKey(type))
+            {
+                serializer = _cache[type];
+            }
+            else
+            {
+                serializer = new DataContractSerializer(type);
+                _cache.Add(type, serializer);
+            }
+            return (T)serializer.ReadObject(stream);
         }
 
         public object Serialize(object body)
