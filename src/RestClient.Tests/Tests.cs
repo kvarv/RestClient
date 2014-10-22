@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using Microsoft.Owin.Testing;
@@ -47,7 +48,7 @@ namespace Rest.Tests
                 restClient.HttpClient.DefaultRequestHeaders.Add("Accept", "application/json");
                 const string ErrorMessage = "error";
                 
-                var aggregateException = Assert.Throws<AggregateException>(() => restClient.GetAsync<List<Foo>>("/api/error/" + ErrorMessage).Result);
+                var aggregateException = Assert.Throws<AggregateException>(() => restClient.GetAsync<object>("/api/error/" + ErrorMessage).Result);
 
                 aggregateException.InnerException.ShouldBeType<ApiException>();
                 var apiException = (ApiException)aggregateException.InnerException;
@@ -64,7 +65,7 @@ namespace Rest.Tests
                 restClient.HttpClient.DefaultRequestHeaders.Add("Accept", "application/xml");
                 const string ErrorMessage = "error";
 
-                var aggregateException = Assert.Throws<AggregateException>(() => restClient.GetAsync<List<Foo>>("/api/error/" + ErrorMessage).Result);
+                var aggregateException = Assert.Throws<AggregateException>(() => restClient.GetAsync<object>("/api/error/" + ErrorMessage).Result);
 
                 aggregateException.InnerException.ShouldBeType<ApiException>();
                 var apiException = (ApiException)aggregateException.InnerException;
@@ -80,7 +81,7 @@ namespace Rest.Tests
                 var restClient = new RestClient(server.HttpClient);
                 restClient.HttpClient.DefaultRequestHeaders.Add("Accept", "application/json");
 
-                var aggregateException = Assert.Throws<AggregateException>(() => restClient.GetAsync<List<Foo>>("/api/unknown").Result);
+                var aggregateException = Assert.Throws<AggregateException>(() => restClient.GetAsync<object>("/api/unknown").Result);
 
                 aggregateException.InnerException.ShouldBeType<ApiException>();
                 var apiException = (ApiException)aggregateException.InnerException;
@@ -96,7 +97,7 @@ namespace Rest.Tests
                 var restClient = new RestClient(server.HttpClient);
                 restClient.HttpClient.DefaultRequestHeaders.Add("Accept", "application/xml");
 
-                var aggregateException = Assert.Throws<AggregateException>(() => restClient.GetAsync<List<Foo>>("/api/unknown").Result);
+                var aggregateException = Assert.Throws<AggregateException>(() => restClient.GetAsync<object>("/api/unknown").Result);
 
                 aggregateException.InnerException.ShouldBeType<ApiException>();
                 var apiException = (ApiException)aggregateException.InnerException;
@@ -104,18 +105,44 @@ namespace Rest.Tests
             }
         }
 
-        //[Fact]
-        //public async Task Should_get_error()
-        //{
-        //    using (var server = TestServer.Create<Startup>())
-        //    {
-        //        var restClient = new RestClient(server.HttpClient);
-        //        restClient.HttpClient.DefaultRequestHeaders.Add("Accept", "application/xml");
+        [Fact]
+        public void Should_throw_exception_for_unkown_server_mediatype()
+        {
+            using (var server = TestServer.Create<Startup>())
+            {
+                var restClient = new RestClient(server.HttpClient);
+                restClient.HttpClient.DefaultRequestHeaders.Add("Accept", "application/foos");
 
-        //        var foos = await restClient.GetAsync<List<Foo>>("/api/error/error");
+                var aggregateException = Assert.Throws<AggregateException>(() =>
+                {
+                    var result = restClient.GetAsync<List<Foo>>("/api/foos").Result;
+                    return result;
+                });
 
-        //    }
-        //}
+                aggregateException.InnerException.ShouldBeType<ApiException>();
+                var apiException = (ApiException)aggregateException.InnerException;
+                apiException.ApiError.HttpStatusCode.ShouldEqual(HttpStatusCode.NotAcceptable);
+            }
+        }
+
+        [Fact]
+        public void Should_throw_exception_for_unkown_client_mediatype()
+        {
+            using (var server = TestServer.Create<Startup>())
+            {
+                var restClient = new RestClient(server.HttpClient);
+                restClient.HttpClient.DefaultRequestHeaders.Add("Accept", "application/json");
+                restClient.MediaTypeSerializers.Remove(restClient.MediaTypeSerializers.First(x => x is JsonMediaTypeSerializer));
+
+                var aggregateException = Assert.Throws<AggregateException>(() =>
+                {
+                    var result = restClient.GetAsync<List<Foo>>("/api/foos").Result;
+                    return result;
+                });
+
+                aggregateException.InnerException.ShouldBeType<NotSupportedException>();
+            }
+        }
     }
 
 

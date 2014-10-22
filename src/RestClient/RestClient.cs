@@ -54,37 +54,39 @@ namespace Rest
                 {
                     var contentAsStream = await httpContent.ReadAsStreamAsync().ConfigureAwait(false);
                     var serializer = GetSerializerMatchingContentType(httpContent);
-                    if (serializer == null)
-                    {
-                        throw new NotSupportedException("Deserialization of " + httpContent.Headers.ContentType.MediaType + " is not supported.");
-                    }
                     return serializer.Deserialize<T>(contentAsStream);
                 }
 
-                if (!response.IsSuccessStatusCode && response.StatusCode != HttpStatusCode.NotFound)
+                if (!response.IsSuccessStatusCode && HasStatusCodeWithoutResponse(response))
                 {
                     var contentAsStream = await httpContent.ReadAsStreamAsync().ConfigureAwait(false);
                     var serializer = GetSerializerMatchingContentType(httpContent);
-                    if (serializer == null)
-                    {
-                        throw new NotSupportedException("Deserialization of " + httpContent.Headers.ContentType.MediaType + " is not supported.");
-                    }
                     var apiError = serializer.Deserialize<ApiError>(contentAsStream);
                     throw new ApiException(apiError);
                 }
 
-                if (!response.IsSuccessStatusCode && response.StatusCode == HttpStatusCode.NotFound)
+                if (!response.IsSuccessStatusCode)
                 {
-                    throw new ApiException(new ApiError { HttpStatusCode = response.StatusCode, Message = "Resource not found." });
+                    throw new ApiException(new ApiError { HttpStatusCode = response.StatusCode, Message = response.ReasonPhrase });
                 }
             }
 
             return default(T);
         }
 
+        private static bool HasStatusCodeWithoutResponse(HttpResponseMessage response)
+        {
+            return response.StatusCode != HttpStatusCode.NotFound && response.StatusCode != HttpStatusCode.NotAcceptable;
+        }
+
         private IMediaTypeSerializer GetSerializerMatchingContentType(HttpContent httpContent)
         {
-            return _mediaTypeSerializers.FirstOrDefault(mediaTypeSerializer => mediaTypeSerializer.SupportedMedaTypes.Any(mediatType => mediatType == httpContent.Headers.ContentType.MediaType));
+            var serializer = _mediaTypeSerializers.FirstOrDefault(mediaTypeSerializer => mediaTypeSerializer.SupportedMedaTypes.Any(mediatType => mediatType == httpContent.Headers.ContentType.MediaType));
+            if (serializer == null)
+            {
+                throw new NotSupportedException("Deserialization of " + httpContent.Headers.ContentType.MediaType + " is not supported.");
+            }
+            return serializer;
         }
     }
 }
