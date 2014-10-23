@@ -205,7 +205,7 @@ namespace Rest.Tests
             using (var server = TestServer.Create<Startup>())
             {
                 var restClient = new RestClient(server.HttpClient);
-                var values = new List<KeyValuePair<string, string>>{};
+                var values = new List<KeyValuePair<string, string>> { new KeyValuePair<string, string>("SomeInt", "1") };
                 var content = new FormUrlEncodedContent(values);
 
                 var id = await restClient.PostAsync<int>("/api/foos", content, MediaTypes.FormUrlEncoded);
@@ -225,10 +225,8 @@ namespace Rest.Tests
                 var id = await restClient.PostAsync<int>("/api/foos", new Foo(), MediaTypes.ApplicationJson, parameters);
 
                 id.ShouldEqual(1);
-
             }
         }
-
 
         [Fact]
         public async Task Should_put_json()
@@ -238,7 +236,7 @@ namespace Rest.Tests
                 var restClient = new RestClient(server.HttpClient);
 
                 var obj = await restClient.PutAsync<object>("/api/foos/{0}".FormatUri(1), new Foo(), MediaTypes.ApplicationJson);
-                
+
                 obj.ShouldBeNull();
             }
         }
@@ -265,7 +263,7 @@ namespace Rest.Tests
                 var restClient = new RestClient(server.HttpClient);
 
                 var obj = await restClient.PutAsync<object>("/api/foos/{0}".FormatUri(1), new Foo(), MediaTypes.ApplicationXml);
-                
+
                 obj.ShouldBeNull();
             }
         }
@@ -276,7 +274,7 @@ namespace Rest.Tests
             using (var server = TestServer.Create<Startup>())
             {
                 var restClient = new RestClient(server.HttpClient);
-                var values = new List<KeyValuePair<string, string>> { };
+                var values = new List<KeyValuePair<string, string>> { new KeyValuePair<string, string>("SomeInt", "1") };
                 var content = new FormUrlEncodedContent(values);
 
                 var obj = await restClient.PutAsync<object>("/api/foos/{0}".FormatUri(1), content, MediaTypes.FormUrlEncoded);
@@ -307,7 +305,6 @@ namespace Rest.Tests
                 await restClient.DeleteAsync("/api/foos", parameters);
             }
         }
-
 
         [Fact]
         public async Task Should_patch_json()
@@ -355,7 +352,7 @@ namespace Rest.Tests
             using (var server = TestServer.Create<Startup>())
             {
                 var restClient = new RestClient(server.HttpClient);
-                var values = new List<KeyValuePair<string, string>> { };
+                var values = new List<KeyValuePair<string, string>> { new KeyValuePair<string, string>("SomeInt", "1") };
                 var content = new FormUrlEncodedContent(values);
 
                 var obj = await restClient.PatchAsync<object>("/api/foos/{0}".FormatUri(1), content, MediaTypes.FormUrlEncoded);

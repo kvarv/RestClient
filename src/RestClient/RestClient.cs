@@ -6,22 +6,24 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
+
 using Rest.Serializers;
 
 namespace Rest
 {
-    public class RestClient
+    public class RestClient : IRestClient
     {
         private readonly HttpClient _httpClient;
+
         private readonly List<IMediaTypeSerializer> _mediaTypeSerializers;
 
         public RestClient(string baseUrl)
-            : this(new HttpClient {BaseAddress = new Uri(baseUrl)})
+            : this(new HttpClient { BaseAddress = new Uri(baseUrl) })
         {
         }
 
         public RestClient(string baseUrl, HttpMessageHandler messageHandler)
-            : this(new HttpClient(messageHandler) {BaseAddress = new Uri(baseUrl)})
+            : this(new HttpClient(messageHandler) { BaseAddress = new Uri(baseUrl) })
         {
         }
 
@@ -29,20 +31,32 @@ namespace Rest
         {
             _httpClient = httpClient;
             _mediaTypeSerializers = new List<IMediaTypeSerializer>
-            {
-                new JsonMediaTypeSerializer(),
-                new XmlMediaTypeSerializer()
-            };
+                                    {
+                                        new JsonMediaTypeSerializer(), 
+                                        new XmlMediaTypeSerializer()
+                                    };
         }
 
         public HttpClient HttpClient
         {
-            get { return _httpClient; }
+            get
+            {
+                return _httpClient;
+            }
         }
 
         public List<IMediaTypeSerializer> MediaTypeSerializers
         {
-            get { return _mediaTypeSerializers; }
+            get
+            {
+                return _mediaTypeSerializers;
+            }
+        }
+
+        public Task DeleteAsync(string requestUri, IDictionary<string, string> parameters = null)
+        {
+            var uri = new Uri(requestUri, UriKind.Relative).ApplyParameters(parameters);
+            return SendAsync<object>(uri, HttpMethod.Delete, null, null);
         }
 
         public async Task<T> GetAsync<T>(string requestUri, IDictionary<string, string> parameters = null)
@@ -51,39 +65,24 @@ namespace Rest
             return await SendAsync<T>(uri, HttpMethod.Get, null, null);
         }
 
-        private async Task<T> SendAsync<T>(Uri uri, HttpMethod httpMethod, object body, string contentType)
+        public Task<T> PatchAsync<T>(string requestUri, object body, string contentType, IDictionary<string, string> parameters = null)
         {
-            var request = CreateRequest(uri, httpMethod, body, contentType);
+            var uri = new Uri(requestUri, UriKind.Relative).ApplyParameters(parameters);
+            var response = SendAsync<T>(uri, HttpVerb.Patch, body, contentType);
+            return response;
+        }
 
-            var response = await _httpClient.SendAsync(request).ConfigureAwait(false);
+        public Task<T> PostAsync<T>(string requestUri, object body, string contentType, IDictionary<string, string> parameters = null)
+        {
+            var uri = new Uri(requestUri, UriKind.Relative).ApplyParameters(parameters);
+            return SendAsync<T>(uri, HttpMethod.Post, body, contentType);
+        }
 
-            if (response.Content != null)
-            {
-                using (var httpContent = response.Content)
-                {
-                    if (response.IsSuccessStatusCode && httpContent.Headers.ContentType != null)
-                    {
-                        var contentAsStream = await httpContent.ReadAsStreamAsync().ConfigureAwait(false);
-                        var serializer = GetSerializerMatchingContentType(httpContent.Headers.ContentType.MediaType);
-                        return serializer.Deserialize<T>(contentAsStream);
-                    }
-
-                    if (!response.IsSuccessStatusCode && httpContent.Headers.ContentType != null)
-                    {
-                        var contentAsStream = await httpContent.ReadAsStreamAsync().ConfigureAwait(false);
-                        var serializer = GetSerializerMatchingContentType(httpContent.Headers.ContentType.MediaType);
-                        var apiError = serializer.Deserialize<ApiError>(contentAsStream);
-                        throw new ApiException(apiError) {HttpStatusCode = response.StatusCode, ReasonPhrase = response.ReasonPhrase};
-                    }
-
-                    if (!response.IsSuccessStatusCode)
-                    {
-                        throw new ApiException(new ApiError {Message = response.ReasonPhrase}) {HttpStatusCode = response.StatusCode, ReasonPhrase = response.ReasonPhrase};
-                    }
-                }
-            }
-
-            return default(T);
+        public Task<T> PutAsync<T>(string requestUri, object body, string contentType, IDictionary<string, string> parameters = null)
+        {
+            var uri = new Uri(requestUri, UriKind.Relative).ApplyParameters(parameters);
+            var response = SendAsync<T>(uri, HttpMethod.Put, body, contentType);
+            return response;
         }
 
         private HttpRequestMessage CreateRequest(Uri uri, HttpMethod httpMethod, object body, string contentType)
@@ -117,6 +116,7 @@ namespace Rest
                     }
                 }
             }
+
             return request;
         }
 
@@ -127,33 +127,43 @@ namespace Rest
             {
                 throw new NotSupportedException("Deserialization of " + mediaType + " is not supported.");
             }
+
             return serializer;
         }
 
-        public Task<T> PostAsync<T>(string requestUri, object body, string contentType, IDictionary<string, string> parameters = null)
+        private async Task<T> SendAsync<T>(Uri uri, HttpMethod httpMethod, object body, string contentType)
         {
-            var uri = new Uri(requestUri, UriKind.Relative).ApplyParameters(parameters);
-            return SendAsync<T>(uri, HttpMethod.Post, body, contentType);
-        }
+            var request = CreateRequest(uri, httpMethod, body, contentType);
 
-        public Task<T> PutAsync<T>(string requestUri, object body, string contentType, IDictionary<string, string> parameters = null)
-        {
-            var uri = new Uri(requestUri, UriKind.Relative).ApplyParameters(parameters);
-            var response = SendAsync<T>(uri, HttpMethod.Put, body, contentType);
-            return response;
-        }
+            var response = await _httpClient.SendAsync(request).ConfigureAwait(false);
 
-        public Task<T> PatchAsync<T>(string requestUri, object body, string contentType, IDictionary<string, string> parameters = null)
-        {
-            var uri = new Uri(requestUri, UriKind.Relative).ApplyParameters(parameters);
-            var response = SendAsync<T>(uri, HttpVerb.Patch, body, contentType);
-            return response;
-        }
+            if (response.Content != null)
+            {
+                using (var httpContent = response.Content)
+                {
+                    if (response.IsSuccessStatusCode && httpContent.Headers.ContentType != null)
+                    {
+                        var contentAsStream = await httpContent.ReadAsStreamAsync().ConfigureAwait(false);
+                        var serializer = GetSerializerMatchingContentType(httpContent.Headers.ContentType.MediaType);
+                        return serializer.Deserialize<T>(contentAsStream);
+                    }
 
-        public Task DeleteAsync(string requestUri, IDictionary<string, string> parameters = null)
-        {
-            var uri = new Uri(requestUri, UriKind.Relative).ApplyParameters(parameters);
-            return SendAsync<object>(uri, HttpMethod.Delete, null, null);
+                    if (!response.IsSuccessStatusCode && httpContent.Headers.ContentType != null)
+                    {
+                        var contentAsStream = await httpContent.ReadAsStreamAsync().ConfigureAwait(false);
+                        var serializer = GetSerializerMatchingContentType(httpContent.Headers.ContentType.MediaType);
+                        var apiError = serializer.Deserialize<ApiError>(contentAsStream);
+                        throw new ApiException(apiError) { HttpStatusCode = response.StatusCode, ReasonPhrase = response.ReasonPhrase };
+                    }
+
+                    if (!response.IsSuccessStatusCode)
+                    {
+                        throw new ApiException(new ApiError { Message = response.ReasonPhrase }) { HttpStatusCode = response.StatusCode, ReasonPhrase = response.ReasonPhrase };
+                    }
+                }
+            }
+
+            return default(T);
         }
     }
 }
