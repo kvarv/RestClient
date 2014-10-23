@@ -6,7 +6,7 @@ namespace Rest.Serializers
     public interface IMediaTypeSerializer
     {
         T Deserialize<T>(Stream stream);
-        IEnumerable<string> SupportedMedaTypes { get; }
+        IEnumerable<string> SupportedMediaTypes { get; }
         object Serialize(object body);
     }
 }

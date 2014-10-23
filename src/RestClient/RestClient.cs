@@ -53,41 +53,46 @@ namespace Rest
             }
         }
 
-        public Task DeleteAsync(string requestUri, IDictionary<string, string> parameters = null)
+        public Task DeleteAsync(string requestUri, string accept, IDictionary<string, string> parameters = null)
         {
             var uri = new Uri(requestUri, UriKind.Relative).ApplyParameters(parameters);
-            return SendAsync<object>(uri, HttpMethod.Delete, null, null);
+            return SendAsync<object>(uri, HttpMethod.Delete, null, null, accept);
         }
 
-        public async Task<T> GetAsync<T>(string requestUri, IDictionary<string, string> parameters = null)
+        public async Task<T> GetAsync<T>(string requestUri, string accept, IDictionary<string, string> parameters = null)
         {
             var uri = new Uri(requestUri, UriKind.Relative).ApplyParameters(parameters);
-            return await SendAsync<T>(uri, HttpMethod.Get, null, null);
+            return await SendAsync<T>(uri, HttpMethod.Get, null, null, accept);
         }
 
-        public Task<T> PatchAsync<T>(string requestUri, object body, string contentType, IDictionary<string, string> parameters = null)
+        public Task<T> PatchAsync<T>(string requestUri, object body, string contentType, string accept, IDictionary<string, string> parameters = null)
         {
             var uri = new Uri(requestUri, UriKind.Relative).ApplyParameters(parameters);
-            var response = SendAsync<T>(uri, HttpVerb.Patch, body, contentType);
+            var response = SendAsync<T>(uri, HttpVerb.Patch, body, contentType, accept);
             return response;
         }
 
-        public Task<T> PostAsync<T>(string requestUri, object body, string contentType, IDictionary<string, string> parameters = null)
+        public Task<T> PostAsync<T>(string requestUri, object body, string contentType, string accept, IDictionary<string, string> parameters = null)
         {
             var uri = new Uri(requestUri, UriKind.Relative).ApplyParameters(parameters);
-            return SendAsync<T>(uri, HttpMethod.Post, body, contentType);
+            return SendAsync<T>(uri, HttpMethod.Post, body, contentType, accept);
         }
 
-        public Task<T> PutAsync<T>(string requestUri, object body, string contentType, IDictionary<string, string> parameters = null)
+        public Task<T> PutAsync<T>(string requestUri, object body, string contentType, string accept, IDictionary<string, string> parameters = null)
         {
             var uri = new Uri(requestUri, UriKind.Relative).ApplyParameters(parameters);
-            var response = SendAsync<T>(uri, HttpMethod.Put, body, contentType);
+            var response = SendAsync<T>(uri, HttpMethod.Put, body, contentType, accept);
             return response;
         }
 
-        private HttpRequestMessage CreateRequest(Uri uri, HttpMethod httpMethod, object body, string contentType)
+        private HttpRequestMessage CreateRequest(Uri uri, HttpMethod httpMethod, object body, string contentType, string accept)
         {
             var request = new HttpRequestMessage(httpMethod, uri);
+            if (accept != null)
+            {
+                request.Headers.Add("Accept", accept);
+            }
+
             if (body != null)
             {
                 var httpContent = body as HttpContent;
@@ -122,7 +127,7 @@ namespace Rest
 
         private IMediaTypeSerializer GetSerializerMatchingContentType(string mediaType)
         {
-            var serializer = _mediaTypeSerializers.FirstOrDefault(mediaTypeSerializer => mediaTypeSerializer.SupportedMedaTypes.Any(mediatType => mediatType == mediaType));
+            var serializer = _mediaTypeSerializers.FirstOrDefault(mediaTypeSerializer => mediaTypeSerializer.SupportedMediaTypes.Any(mediatType => mediatType == mediaType));
             if (serializer == null)
             {
                 throw new NotSupportedException("Deserialization of " + mediaType + " is not supported.");
@@ -131,9 +136,9 @@ namespace Rest
             return serializer;
         }
 
-        private async Task<T> SendAsync<T>(Uri uri, HttpMethod httpMethod, object body, string contentType)
+        private async Task<T> SendAsync<T>(Uri uri, HttpMethod httpMethod, object body, string contentType, string accept)
         {
-            var request = CreateRequest(uri, httpMethod, body, contentType);
+            var request = CreateRequest(uri, httpMethod, body, contentType, accept);
 
             var response = await _httpClient.SendAsync(request).ConfigureAwait(false);
 

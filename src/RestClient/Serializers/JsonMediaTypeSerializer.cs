@@ -6,18 +6,18 @@ namespace Rest.Serializers
 {
     public class JsonMediaTypeSerializer : IMediaTypeSerializer
     {
-        private readonly List<string> _supportedMedaTypes;
+        private readonly List<string> m_supportedMediaTypes;
         private readonly JsonSerializer _jsonSerializer;
 
         public JsonMediaTypeSerializer()
         {
             _jsonSerializer = new JsonSerializer();
-            _supportedMedaTypes = new List<string> { "application/json", "text/json" };
+            m_supportedMediaTypes = new List<string> { "application/json", "text/json" };
         }
 
-        public IEnumerable<string> SupportedMedaTypes
+        public IEnumerable<string> SupportedMediaTypes
         {
-            get { return _supportedMedaTypes; }
+            get { return m_supportedMediaTypes; }
         }
 
         public T Deserialize<T>(Stream stream)

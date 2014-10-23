@@ -12,14 +12,14 @@ namespace Rest
 
         List<IMediaTypeSerializer> MediaTypeSerializers { get; }
 
-        Task DeleteAsync(string requestUri, IDictionary<string, string> parameters = null);
+        Task DeleteAsync(string requestUri, string accept, IDictionary<string, string> parameters = null);
 
-        Task<T> GetAsync<T>(string requestUri, IDictionary<string, string> parameters = null);
+        Task<T> GetAsync<T>(string requestUri, string accept, IDictionary<string, string> parameters = null);
 
-        Task<T> PatchAsync<T>(string requestUri, object body, string contentType, IDictionary<string, string> parameters = null);
+        Task<T> PatchAsync<T>(string requestUri, object body, string contentType, string accept, IDictionary<string, string> parameters = null);
 
-        Task<T> PostAsync<T>(string requestUri, object body, string contentType, IDictionary<string, string> parameters = null);
+        Task<T> PostAsync<T>(string requestUri, object body, string contentType, string accept, IDictionary<string, string> parameters = null);
 
-        Task<T> PutAsync<T>(string requestUri, object body, string contentType, IDictionary<string, string> parameters = null);
+        Task<T> PutAsync<T>(string requestUri, object body, string contentType, string accept, IDictionary<string, string> parameters = null);
     }
 }

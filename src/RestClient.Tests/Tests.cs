@@ -21,7 +21,7 @@ namespace Rest.Tests
             {
                 var restClient = new RestClient(server.HttpClient);
 
-                var foos = await restClient.GetAsync<List<Foo>>("/api/foos");
+                var foos = await restClient.GetAsync<List<Foo>>("/api/foos", MediaTypes.ApplicationJson);
 
                 foos.Count.ShouldEqual(3);
             }
@@ -33,9 +33,8 @@ namespace Rest.Tests
             using (var server = TestServer.Create<Startup>())
             {
                 var restClient = new RestClient(server.HttpClient);
-                restClient.HttpClient.DefaultRequestHeaders.Add("Accept", MediaTypes.ApplicationXml);
 
-                var foos = await restClient.GetAsync<List<Foo>>("/api/foos");
+                var foos = await restClient.GetAsync<List<Foo>>("/api/foos", MediaTypes.ApplicationXml);
 
                 foos.Count.ShouldEqual(3);
             }
@@ -47,10 +46,9 @@ namespace Rest.Tests
             using (var server = TestServer.Create<Startup>())
             {
                 var restClient = new RestClient(server.HttpClient);
-                restClient.HttpClient.DefaultRequestHeaders.Add("Accept", MediaTypes.ApplicationXml);
                 const string ErrorMessage = "error";
 
-                var aggregateException = Assert.Throws<AggregateException>(() => restClient.GetAsync<object>("/api/error/" + ErrorMessage).Result);
+                var aggregateException = Assert.Throws<AggregateException>(() => restClient.GetAsync<object>("/api/error/" + ErrorMessage, MediaTypes.ApplicationJson).Result);
 
                 aggregateException.InnerException.ShouldBeType<ApiException>();
                 var apiException = (ApiException)aggregateException.InnerException;
@@ -64,10 +62,9 @@ namespace Rest.Tests
             using (var server = TestServer.Create<Startup>())
             {
                 var restClient = new RestClient(server.HttpClient);
-                restClient.HttpClient.DefaultRequestHeaders.Add("Accept", MediaTypes.ApplicationXml);
                 const string ErrorMessage = "error";
 
-                var aggregateException = Assert.Throws<AggregateException>(() => restClient.GetAsync<object>("/api/error/" + ErrorMessage).Result);
+                var aggregateException = Assert.Throws<AggregateException>(() => restClient.GetAsync<object>("/api/error/" + ErrorMessage, MediaTypes.ApplicationXml).Result);
 
                 aggregateException.InnerException.ShouldBeType<ApiException>();
                 var apiException = (ApiException)aggregateException.InnerException;
@@ -81,9 +78,8 @@ namespace Rest.Tests
             using (var server = TestServer.Create<Startup>())
             {
                 var restClient = new RestClient(server.HttpClient);
-                restClient.HttpClient.DefaultRequestHeaders.Add("Accept", MediaTypes.ApplicationJson);
 
-                var aggregateException = Assert.Throws<AggregateException>(() => restClient.GetAsync<object>("/api/unknown").Result);
+                var aggregateException = Assert.Throws<AggregateException>(() => restClient.GetAsync<object>("/api/unknown", MediaTypes.ApplicationJson).Result);
 
                 aggregateException.InnerException.ShouldBeType<ApiException>();
                 var apiException = (ApiException)aggregateException.InnerException;
@@ -97,9 +93,8 @@ namespace Rest.Tests
             using (var server = TestServer.Create<Startup>())
             {
                 var restClient = new RestClient(server.HttpClient);
-                restClient.HttpClient.DefaultRequestHeaders.Add("Accept", MediaTypes.ApplicationXml);
 
-                var aggregateException = Assert.Throws<AggregateException>(() => restClient.GetAsync<object>("/api/unknown").Result);
+                var aggregateException = Assert.Throws<AggregateException>(() => restClient.GetAsync<object>("/api/unknown", MediaTypes.ApplicationXml).Result);
 
                 aggregateException.InnerException.ShouldBeType<ApiException>();
                 var apiException = (ApiException)aggregateException.InnerException;
@@ -113,11 +108,10 @@ namespace Rest.Tests
             using (var server = TestServer.Create<Startup>())
             {
                 var restClient = new RestClient(server.HttpClient);
-                restClient.HttpClient.DefaultRequestHeaders.Add("Accept", "application/foos");
 
                 var aggregateException = Assert.Throws<AggregateException>(() =>
                 {
-                    var result = restClient.GetAsync<List<Foo>>("/api/foos").Result;
+                    var result = restClient.GetAsync<List<Foo>>("/api/foos", "application/foos").Result;
                     return result;
                 });
 
@@ -133,12 +127,11 @@ namespace Rest.Tests
             using (var server = TestServer.Create<Startup>())
             {
                 var restClient = new RestClient(server.HttpClient);
-                restClient.HttpClient.DefaultRequestHeaders.Add("Accept", MediaTypes.ApplicationJson);
                 restClient.MediaTypeSerializers.Remove(restClient.MediaTypeSerializers.First(x => x is JsonMediaTypeSerializer));
 
                 var aggregateException = Assert.Throws<AggregateException>(() =>
                 {
-                    var result = restClient.GetAsync<List<Foo>>("/api/foos").Result;
+                    var result = restClient.GetAsync<List<Foo>>("/api/foos", MediaTypes.ApplicationJson).Result;
                     return result;
                 });
 
@@ -154,7 +147,7 @@ namespace Rest.Tests
                 var restClient = new RestClient(server.HttpClient);
 
                 var parameters = new Dictionary<string, string> { { "param1", "value1" }, { "param2", "value2" } };
-                var foo = await restClient.GetAsync<Foo>("/api/foos", parameters);
+                var foo = await restClient.GetAsync<Foo>("/api/foos", null, parameters);
 
                 foo.ShouldNotBeNull();
             }
@@ -167,7 +160,7 @@ namespace Rest.Tests
             {
                 var restClient = new RestClient(server.HttpClient);
 
-                var foo = await restClient.GetAsync<Foo>("/api/foos/{0}".FormatUri(1));
+                var foo = await restClient.GetAsync<Foo>("/api/foos/{0}".FormatUri(1), null);
 
                 foo.ShouldNotBeNull();
             }
@@ -180,7 +173,7 @@ namespace Rest.Tests
             {
                 var restClient = new RestClient(server.HttpClient);
 
-                var id = await restClient.PostAsync<int>("/api/foos", new Foo(), MediaTypes.ApplicationJson);
+                var id = await restClient.PostAsync<int>("/api/foos", new Foo(), MediaTypes.ApplicationJson, MediaTypes.ApplicationJson);
 
                 id.ShouldEqual(1);
             }
@@ -193,7 +186,7 @@ namespace Rest.Tests
             {
                 var restClient = new RestClient(server.HttpClient);
 
-                var id = await restClient.PostAsync<int>("/api/foos", new Foo(), MediaTypes.ApplicationXml);
+                var id = await restClient.PostAsync<int>("/api/foos", new Foo(), MediaTypes.ApplicationXml, MediaTypes.ApplicationXml);
 
                 id.ShouldEqual(1);
             }
@@ -208,7 +201,7 @@ namespace Rest.Tests
                 var values = new List<KeyValuePair<string, string>> { new KeyValuePair<string, string>("SomeInt", "1") };
                 var content = new FormUrlEncodedContent(values);
 
-                var id = await restClient.PostAsync<int>("/api/foos", content, MediaTypes.FormUrlEncoded);
+                var id = await restClient.PostAsync<int>("/api/foos", content, MediaTypes.FormUrlEncoded, null);
 
                 id.ShouldEqual(1);
             }
@@ -222,7 +215,7 @@ namespace Rest.Tests
                 var restClient = new RestClient(server.HttpClient);
                 var parameters = new Dictionary<string, string> { { "param1", "value1" }, { "param2", "value2" } };
 
-                var id = await restClient.PostAsync<int>("/api/foos", new Foo(), MediaTypes.ApplicationJson, parameters);
+                var id = await restClient.PostAsync<int>("/api/foos", new Foo(), MediaTypes.ApplicationJson, null, parameters);
 
                 id.ShouldEqual(1);
             }
@@ -235,7 +228,7 @@ namespace Rest.Tests
             {
                 var restClient = new RestClient(server.HttpClient);
 
-                var obj = await restClient.PutAsync<object>("/api/foos/{0}".FormatUri(1), new Foo(), MediaTypes.ApplicationJson);
+                var obj = await restClient.PutAsync<object>("/api/foos/{0}".FormatUri(1), new Foo(), MediaTypes.ApplicationJson, null);
 
                 obj.ShouldBeNull();
             }
@@ -249,7 +242,7 @@ namespace Rest.Tests
                 var restClient = new RestClient(server.HttpClient);
                 var parameters = new Dictionary<string, string> { { "param1", "value1" }, { "param2", "value2" } };
 
-                var obj = await restClient.PutAsync<object>("/api/foos", new Foo(), MediaTypes.ApplicationJson, parameters);
+                var obj = await restClient.PutAsync<object>("/api/foos", new Foo(), MediaTypes.ApplicationJson, null, parameters);
 
                 obj.ShouldBeNull();
             }
@@ -262,7 +255,7 @@ namespace Rest.Tests
             {
                 var restClient = new RestClient(server.HttpClient);
 
-                var obj = await restClient.PutAsync<object>("/api/foos/{0}".FormatUri(1), new Foo(), MediaTypes.ApplicationXml);
+                var obj = await restClient.PutAsync<object>("/api/foos/{0}".FormatUri(1), new Foo(), MediaTypes.ApplicationXml, null);
 
                 obj.ShouldBeNull();
             }
@@ -277,7 +270,7 @@ namespace Rest.Tests
                 var values = new List<KeyValuePair<string, string>> { new KeyValuePair<string, string>("SomeInt", "1") };
                 var content = new FormUrlEncodedContent(values);
 
-                var obj = await restClient.PutAsync<object>("/api/foos/{0}".FormatUri(1), content, MediaTypes.FormUrlEncoded);
+                var obj = await restClient.PutAsync<object>("/api/foos/{0}".FormatUri(1), content, MediaTypes.FormUrlEncoded, null);
 
                 obj.ShouldBeNull();
             }
@@ -290,7 +283,7 @@ namespace Rest.Tests
             {
                 var restClient = new RestClient(server.HttpClient);
 
-                await restClient.DeleteAsync("/api/foos/{0}".FormatUri(1));
+                await restClient.DeleteAsync("/api/foos/{0}".FormatUri(1), null);
             }
         }
 
@@ -302,7 +295,7 @@ namespace Rest.Tests
                 var restClient = new RestClient(server.HttpClient);
                 var parameters = new Dictionary<string, string> { { "param1", "value1" }, { "param2", "value2" } };
 
-                await restClient.DeleteAsync("/api/foos", parameters);
+                await restClient.DeleteAsync("/api/foos", null, parameters);
             }
         }
 
@@ -313,7 +306,7 @@ namespace Rest.Tests
             {
                 var restClient = new RestClient(server.HttpClient);
 
-                var obj = await restClient.PatchAsync<object>("/api/foos/{0}".FormatUri(1), new Foo(), MediaTypes.ApplicationJson);
+                var obj = await restClient.PatchAsync<object>("/api/foos/{0}".FormatUri(1), new Foo(), MediaTypes.ApplicationJson, null);
 
                 obj.ShouldBeNull();
             }
@@ -327,7 +320,7 @@ namespace Rest.Tests
                 var restClient = new RestClient(server.HttpClient);
                 var parameters = new Dictionary<string, string> { { "param1", "value1" }, { "param2", "value2" } };
 
-                var obj = await restClient.PatchAsync<object>("/api/foos", new Foo(), MediaTypes.ApplicationJson, parameters);
+                var obj = await restClient.PatchAsync<object>("/api/foos", new Foo(), MediaTypes.ApplicationJson, null, parameters);
 
                 obj.ShouldBeNull();
             }
@@ -340,7 +333,7 @@ namespace Rest.Tests
             {
                 var restClient = new RestClient(server.HttpClient);
 
-                var obj = await restClient.PatchAsync<object>("/api/foos/{0}".FormatUri(1), new Foo(), MediaTypes.ApplicationXml);
+                var obj = await restClient.PatchAsync<object>("/api/foos/{0}".FormatUri(1), new Foo(), MediaTypes.ApplicationXml, null);
 
                 obj.ShouldBeNull();
             }
@@ -355,7 +348,7 @@ namespace Rest.Tests
                 var values = new List<KeyValuePair<string, string>> { new KeyValuePair<string, string>("SomeInt", "1") };
                 var content = new FormUrlEncodedContent(values);
 
-                var obj = await restClient.PatchAsync<object>("/api/foos/{0}".FormatUri(1), content, MediaTypes.FormUrlEncoded);
+                var obj = await restClient.PatchAsync<object>("/api/foos/{0}".FormatUri(1), content, MediaTypes.FormUrlEncoded, null);
 
                 obj.ShouldBeNull();
             }

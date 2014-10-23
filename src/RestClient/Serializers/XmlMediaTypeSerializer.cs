@@ -7,17 +7,17 @@ namespace Rest.Serializers
 {
     public class XmlMediaTypeSerializer : IMediaTypeSerializer
     {
-        private readonly List<string> _supportedMedaTypes;
+        private readonly List<string> m_supportedMediaTypes;
         //concurrency issues??
         private readonly Dictionary<Type, DataContractSerializer> _cache = new Dictionary<Type, DataContractSerializer>(); 
         public XmlMediaTypeSerializer()
         {
-            _supportedMedaTypes = new List<string> { "application/xml", "text/xml" };
+            m_supportedMediaTypes = new List<string> { "application/xml", "text/xml" };
         }
 
-        public IEnumerable<string> SupportedMedaTypes
+        public IEnumerable<string> SupportedMediaTypes
         {
-            get { return _supportedMedaTypes; }
+            get { return m_supportedMediaTypes; }
         }
 
         public T Deserialize<T>(Stream stream)
