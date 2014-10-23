@@ -43,6 +43,7 @@
     <Compile Include="ApiError.cs" />
     <Compile Include="ApiException.cs" />
     <Compile Include="Ensure.cs" />
+    <Compile Include="HttpVerb.cs" />
     <Compile Include="Serializers\IMediaTypeSerializer.cs" />
     <Compile Include="Serializers\JsonMediaTypeSerializer.cs" />
     <Compile Include="MediaTypes.cs" />

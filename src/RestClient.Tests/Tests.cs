@@ -307,5 +307,61 @@ namespace Rest.Tests
                 await restClient.DeleteAsync("/api/foos", parameters);
             }
         }
+
+
+        [Fact]
+        public async Task Should_patch_json()
+        {
+            using (var server = TestServer.Create<Startup>())
+            {
+                var restClient = new RestClient(server.HttpClient);
+
+                var obj = await restClient.PatchAsync<object>("/api/foos/{0}".FormatUri(1), new Foo(), MediaTypes.ApplicationJson);
+
+                obj.ShouldBeNull();
+            }
+        }
+
+        [Fact]
+        public async Task Should_patch_json_with_parameters()
+        {
+            using (var server = TestServer.Create<Startup>())
+            {
+                var restClient = new RestClient(server.HttpClient);
+                var parameters = new Dictionary<string, string> { { "param1", "value1" }, { "param2", "value2" } };
+
+                var obj = await restClient.PatchAsync<object>("/api/foos", new Foo(), MediaTypes.ApplicationJson, parameters);
+
+                obj.ShouldBeNull();
+            }
+        }
+
+        [Fact]
+        public async Task Should_patch_xml()
+        {
+            using (var server = TestServer.Create<Startup>())
+            {
+                var restClient = new RestClient(server.HttpClient);
+
+                var obj = await restClient.PatchAsync<object>("/api/foos/{0}".FormatUri(1), new Foo(), MediaTypes.ApplicationXml);
+
+                obj.ShouldBeNull();
+            }
+        }
+
+        [Fact]
+        public async Task Should_patch_form_url_encoded_content()
+        {
+            using (var server = TestServer.Create<Startup>())
+            {
+                var restClient = new RestClient(server.HttpClient);
+                var values = new List<KeyValuePair<string, string>> { };
+                var content = new FormUrlEncodedContent(values);
+
+                var obj = await restClient.PatchAsync<object>("/api/foos/{0}".FormatUri(1), content, MediaTypes.FormUrlEncoded);
+
+                obj.ShouldBeNull();
+            }
+        }
     }
 }

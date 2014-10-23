@@ -51,6 +51,18 @@ namespace Rest.Tests.TestRestServer
         }
 
         [Route("{id}")]
+        public HttpResponseMessage Patch(int id, Foo foo)
+        {
+            return Request.CreateResponse(HttpStatusCode.OK);
+        }
+
+        [Route("")]
+        public HttpResponseMessage Patch(string param1, string param2, Foo foo)
+        {
+            return Request.CreateResponse(HttpStatusCode.OK);
+        }
+
+        [Route("{id}")]
         public HttpResponseMessage Delete(int id)
         {
             return Request.CreateResponse(HttpStatusCode.OK);

@@ -143,6 +143,13 @@ namespace Rest
             return response;
         }
 
+        public Task<T> PatchAsync<T>(string requestUri, object body, string contentType, IDictionary<string, string> parameters = null)
+        {
+            var uri = new Uri(requestUri, UriKind.Relative).ApplyParameters(parameters);
+            var response = SendAsync<T>(uri, HttpVerb.Patch, body, contentType);
+            return response;
+        }
+
         public Task DeleteAsync(string requestUri, IDictionary<string, string> parameters = null)
         {
             var uri = new Uri(requestUri, UriKind.Relative).ApplyParameters(parameters);
