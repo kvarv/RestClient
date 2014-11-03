@@ -45,6 +45,7 @@
     <Compile Include="Ensure.cs" />
     <Compile Include="HttpVerb.cs" />
     <Compile Include="IRestClient.cs" />
+    <Compile Include="Serializers\BsonMediaTypeSerializer.cs" />
     <Compile Include="Serializers\IMediaTypeSerializer.cs" />
     <Compile Include="Serializers\JsonMediaTypeSerializer.cs" />
     <Compile Include="MediaTypes.cs" />

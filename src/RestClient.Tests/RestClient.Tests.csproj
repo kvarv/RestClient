@@ -96,6 +96,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BsonTests.cs" />
     <Compile Include="TestRestServer\ErrorController.cs" />
     <Compile Include="TestRestServer\Startup.cs" />
     <Compile Include="TestRestServer\FooController.cs" />

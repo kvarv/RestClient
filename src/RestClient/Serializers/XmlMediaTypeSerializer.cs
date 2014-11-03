@@ -12,7 +12,7 @@ namespace Rest.Serializers
         private readonly Dictionary<Type, DataContractSerializer> _cache = new Dictionary<Type, DataContractSerializer>(); 
         public XmlMediaTypeSerializer()
         {
-            m_supportedMediaTypes = new List<string> { "application/xml", "text/xml" };
+            m_supportedMediaTypes = new List<string> { MediaTypes.ApplicationXml, MediaTypes.TextXml };
         }
 
         public IEnumerable<string> SupportedMediaTypes
@@ -38,10 +38,23 @@ namespace Rest.Serializers
 
         public object Serialize(object body)
         {
-            var serializer = new DataContractSerializer(body.GetType());
-            var memoryStream = new MemoryStream();
-            serializer.WriteObject(memoryStream, body);
-            return memoryStream;
+            var type = body.GetType();
+            DataContractSerializer serializer;
+            if (_cache.ContainsKey(type))
+            {
+                serializer = _cache[type];
+            }
+            else
+            {
+                serializer = new DataContractSerializer(type);
+                _cache.Add(type, serializer);
+            }
+
+            using (var memoryStream = new MemoryStream())
+            {
+                serializer.WriteObject(memoryStream, body);
+                return memoryStream;   
+            }
         }
     }
 }

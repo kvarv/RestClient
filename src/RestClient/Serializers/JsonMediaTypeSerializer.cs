@@ -12,7 +12,7 @@ namespace Rest.Serializers
         public JsonMediaTypeSerializer()
         {
             _jsonSerializer = new JsonSerializer();
-            m_supportedMediaTypes = new List<string> { "application/json", "text/json" };
+            m_supportedMediaTypes = new List<string> { MediaTypes.ApplicationJson, MediaTypes.TextJson };
         }
 
         public IEnumerable<string> SupportedMediaTypes

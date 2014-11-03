@@ -21,6 +21,12 @@ namespace Rest.Tests.TestRestServer
         }
 
         [Route("")]
+        public HttpResponseMessage Get(string param)
+        {
+            return Request.CreateResponse(HttpStatusCode.OK, 1);
+        }
+
+        [Route("")]
         public HttpResponseMessage Get(string param1, string param2)
         {
             return Request.CreateResponse(HttpStatusCode.OK, CreateFoo());

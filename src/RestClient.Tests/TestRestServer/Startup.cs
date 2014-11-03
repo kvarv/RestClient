@@ -9,6 +9,7 @@ namespace Rest.Tests.TestRestServer
         public void Configuration(IAppBuilder app)
         {
             var httpConfiguration = new HttpConfiguration();
+            httpConfiguration.Formatters.Add(new BsonMediaTypeFormatter());
             var defaultNegotiator = new DefaultContentNegotiator(excludeMatchOnTypeOnly: true);
             httpConfiguration.Services.Replace(typeof(IContentNegotiator), defaultNegotiator);
             httpConfiguration.MapHttpAttributeRoutes();

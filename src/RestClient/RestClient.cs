@@ -33,7 +33,8 @@ namespace Rest
             _mediaTypeSerializers = new List<IMediaTypeSerializer>
                                     {
                                         new JsonMediaTypeSerializer(), 
-                                        new XmlMediaTypeSerializer()
+                                        new XmlMediaTypeSerializer(),
+                                        new BsonMediaTypeSerializer()
                                     };
         }
 
