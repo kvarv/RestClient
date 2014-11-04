@@ -6,7 +6,7 @@ A library that maskes it easy to create a client over your ASP.NET Web Api 2 res
 
 This library assumes that you return *HttpResponseMessage* from your ApiController actions.
 
-`return Request.CreateResponse(HttpStatusCode.OK, composition.CompositionVersion.Data);`
+`return Request.CreateResponse(HttpStatusCode.OK, data);`
 
 
 ### Returning errors/exceptions
@@ -30,7 +30,7 @@ through DataContractSerializer.
 If you want to do custom serialization/deserialization you should create a media type for your particular case
 and implement *IMediaTypeSerializer* in your client. This can then be plugged in with
 
-`MediaTypeSerializers.Add(new OpenEhrResultSetXmlMediaTypeSerializer());`
+`MediaTypeSerializers.Add(new ProtobufMediaTypeSerializer());`
 
 ## More?
 
