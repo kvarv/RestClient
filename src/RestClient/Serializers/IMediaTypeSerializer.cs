@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.IO;
 
-namespace Rest.Serializers
+namespace Rest.Client.Serializers
 {
     public interface IMediaTypeSerializer
     {

@@ -1,8 +1,9 @@
 ﻿using System.Net.Http.Formatting;
 using System.Web.Http;
+
 using Owin;
 
-namespace Rest.Tests.TestRestServer
+namespace Rest.Client.Tests.TestRestServer
 {
     public class Startup
     {

@@ -1,11 +1,11 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+
 using Newtonsoft.Json;
 using Newtonsoft.Json.Bson;
 
-namespace Rest.Serializers
+namespace Rest.Client.Serializers
 {
     public class BsonMediaTypeSerializer : IMediaTypeSerializer
     {

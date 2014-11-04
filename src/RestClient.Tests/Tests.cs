@@ -4,13 +4,17 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
+
 using Microsoft.Owin.Testing;
-using Rest.Serializers;
-using Rest.Tests.TestRestServer;
+
+using Rest.Client.Serializers;
+using Rest.Client.Tests.TestRestServer;
+
 using Should;
+
 using Xunit;
 
-namespace Rest.Tests
+namespace Rest.Client.Tests
 {
     public class Tests
     {

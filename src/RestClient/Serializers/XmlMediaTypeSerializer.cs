@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization;
 
-namespace Rest.Serializers
+namespace Rest.Client.Serializers
 {
     public class XmlMediaTypeSerializer : IMediaTypeSerializer
     {

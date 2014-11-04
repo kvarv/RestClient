@@ -2,9 +2,9 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
 
-using Rest.Serializers;
+using Rest.Client.Serializers;
 
-namespace Rest
+namespace Rest.Client
 {
     public interface IRestClient
     {

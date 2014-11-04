@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Rest
+namespace Rest.Client
 {
     /// <summary>
     ///   Ensure input parameters

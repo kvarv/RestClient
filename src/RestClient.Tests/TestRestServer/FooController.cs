@@ -3,7 +3,7 @@ using System.Net;
 using System.Net.Http;
 using System.Web.Http;
 
-namespace Rest.Tests.TestRestServer
+namespace Rest.Client.Tests.TestRestServer
 {
     [RoutePrefix("api/foos")]
     public class FooController : ApiController

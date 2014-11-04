@@ -1,9 +1,8 @@
-using System.Net;
 using System.Runtime.Serialization;
 
 using Newtonsoft.Json;
 
-namespace Rest
+namespace Rest.Client
 {
     [DataContract(Name = "Error", Namespace = "")]
     [JsonObject(MemberSerialization.OptOut)]

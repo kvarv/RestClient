@@ -1,4 +1,4 @@
-namespace Rest
+namespace Rest.Client
 {
     public static class MediaTypes
     {

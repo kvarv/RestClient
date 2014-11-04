@@ -1,11 +1,15 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+
 using Microsoft.Owin.Testing;
-using Rest.Tests.TestRestServer;
+
+using Rest.Client.Tests.TestRestServer;
+
 using Should;
+
 using Xunit;
 
-namespace Rest.Tests
+namespace Rest.Client.Tests
 {
     public class BsonTests
     {

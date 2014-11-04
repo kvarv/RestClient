@@ -7,9 +7,9 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 
-using Rest.Serializers;
+using Rest.Client.Serializers;
 
-namespace Rest
+namespace Rest.Client
 {
     public class RestClient : IRestClient
     {

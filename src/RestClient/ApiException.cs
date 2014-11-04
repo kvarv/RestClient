@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Net;
 
-namespace Rest
+namespace Rest.Client
 {
     public class ApiException : Exception
     {

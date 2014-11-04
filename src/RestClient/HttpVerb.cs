@@ -1,6 +1,6 @@
 ﻿using System.Net.Http;
 
-namespace Rest
+namespace Rest.Client
 {
     public static class HttpVerb
     {
