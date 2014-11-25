@@ -60,10 +60,10 @@ namespace Rest.Client
             return SendAsync<object>(uri, HttpMethod.Delete, null, null, accept);
         }
 
-        public async Task<T> GetAsync<T>(string requestUri, string accept, IDictionary<string, string> parameters = null)
+        public Task<T> GetAsync<T>(string requestUri, string accept, IDictionary<string, string> parameters = null)
         {
             var uri = new Uri(requestUri, UriKind.Relative).ApplyParameters(parameters);
-            return await SendAsync<T>(uri, HttpMethod.Get, null, null, accept);
+            return SendAsync<T>(uri, HttpMethod.Get, null, null, accept);
         }
 
         public Task<T> PatchAsync<T>(string requestUri, object body, string contentType, string accept, IDictionary<string, string> parameters = null)
